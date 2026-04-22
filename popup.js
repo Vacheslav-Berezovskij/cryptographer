@@ -53,6 +53,7 @@ async function saveOutgoingPayload(payload) {
       maxdh_last_outgoing_payload: payload,
       maxdh_last_outgoing_ts: Date.now()
     });
+    await chrome.runtime.sendMessage({ type: 'MAXDH_SET_OUTGOING', payload });
   } catch {
     // ignore storage failures in popup context
   }
