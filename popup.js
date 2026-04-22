@@ -46,6 +46,18 @@ function setStatus(text) {
   els.globalStatus.textContent = text;
 }
 
+async function saveOutgoingPayload(payload) {
+  if (!payload) return;
+  try {
+    await chrome.storage.local.set({
+      maxdh_last_outgoing_payload: payload,
+      maxdh_last_outgoing_ts: Date.now()
+    });
+  } catch {
+    // ignore storage failures in popup context
+  }
+}
+
 function switchTab(tab) {
   const isSend = tab === 'send';
   els.tabSend.classList.toggle('is-active', isSend);
@@ -74,6 +86,7 @@ async function handleSenderNext() {
     if (state === 'idle') {
       const res = await senderSM.startSender();
       els.sendOutgoing.value = res.outgoing ?? '';
+      await saveOutgoingPayload(els.sendOutgoing.value.trim());
       return;
     }
 
@@ -81,6 +94,7 @@ async function handleSenderNext() {
       if (!looksLikeJson(incoming)) throw new Error('Вставьте JSON ack_params от Получателя.');
       const res = await senderSM.senderHandleAckAndBuildPub(incoming);
       els.sendOutgoing.value = res.outgoing ?? '';
+      await saveOutgoingPayload(els.sendOutgoing.value.trim());
       return;
     }
 
@@ -89,6 +103,7 @@ async function handleSenderNext() {
       const plaintext = els.sendPlaintext.value;
       const res = await senderSM.senderHandlePubEncrypt(incoming, plaintext);
       els.sendOutgoing.value = res.outgoing ?? '';
+      await saveOutgoingPayload(els.sendOutgoing.value.trim());
       return;
     }
 
@@ -112,6 +127,7 @@ async function handleReceiverNext() {
       if (!looksLikeJson(incoming)) throw new Error('Вставьте JSON params от Отправителя.');
       const res = await receiverSM.receiveParams(incoming);
       els.readOutgoing.value = res.outgoing ?? '';
+      await saveOutgoingPayload(els.readOutgoing.value.trim());
       return;
     }
 
@@ -119,6 +135,7 @@ async function handleReceiverNext() {
       if (!looksLikeJson(incoming)) throw new Error('Вставьте JSON pub от Отправителя.');
       const res = await receiverSM.receiverHandlePubAndReply(incoming);
       els.readOutgoing.value = res.outgoing ?? '';
+      await saveOutgoingPayload(els.readOutgoing.value.trim());
       return;
     }
 
@@ -190,6 +207,7 @@ els.sendStart.addEventListener('click', async () => {
   try {
     const res = await senderSM.startSender();
     els.sendOutgoing.value = res.outgoing ?? '';
+    await saveOutgoingPayload(els.sendOutgoing.value.trim());
   } catch (err) {
     setStatus(`Ошибка запуска отправителя: ${err.message}`);
   }
@@ -244,6 +262,38 @@ els.tabRead.addEventListener('click', () => switchTab('read'));
 window.addEventListener('beforeunload', () => {
   senderSM.dispose();
   receiverSM.dispose();
+});
+
+// Bridge for content script:
+// - MAXDH_IMPORT_PAYLOAD: put incoming payload into current tab input and suggest next step.
+// - MAXDH_GET_OUTGOING: return latest outgoing payload to insert into MAX composer.
+chrome.runtime?.onMessage?.addListener((msg, _sender, sendResponse) => {
+  try {
+    if (msg?.type === 'MAXDH_IMPORT_PAYLOAD') {
+      const payload = String(msg.payload || '').trim();
+      const sendActive = !els.panelSend.classList.contains('hidden');
+      if (sendActive) {
+        els.sendIncoming.value = payload;
+        setStatus('Из MAX импортирован payload для вкладки «Отправить». Нажмите «Следующий шаг».');
+      } else {
+        els.readIncoming.value = payload;
+        setStatus('Из MAX импортирован payload для вкладки «Читать». Нажмите «Следующий шаг».');
+      }
+      sendResponse?.({ ok: true });
+      return true;
+    }
+
+    if (msg?.type === 'MAXDH_GET_OUTGOING') {
+      const sendActive = !els.panelSend.classList.contains('hidden');
+      const payload = sendActive ? els.sendOutgoing.value.trim() : els.readOutgoing.value.trim();
+      sendResponse?.({ ok: true, payload });
+      return true;
+    }
+  } catch (e) {
+    sendResponse?.({ ok: false, error: e.message });
+    return true;
+  }
+  return false;
 });
 
 // Lightweight runtime self-check that touches crypto/cipher modules explicitly.
