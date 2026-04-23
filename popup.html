@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAX E2E Popup</title>
+    <link rel="stylesheet" href="./popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="header">
+        <h1>MAX E2E</h1>
+        <p class="muted">Пошаговый мастер одноразовой DH‑сессии</p>
+        <div class="top-actions">
+          <button id="open-standalone" title="Открыть интерфейс в отдельной вкладке, чтобы не терять состояние при закрытии popup">
+            Открыть в отдельной вкладке
+          </button>
+        </div>
+      </header>
+
+      <nav class="tabs" role="tablist" aria-label="Режим">
+        <button id="tab-send" class="tab is-active" data-tab="send" role="tab" aria-selected="true">Отправить</button>
+        <button id="tab-read" class="tab" data-tab="read" role="tab" aria-selected="false">Читать</button>
+      </nav>
+
+      <section class="panel" data-panel="send">
+        <h2>Роль: Отправитель</h2>
+        <p id="send-step" class="step">Состояние: idle</p>
+        <p id="send-hint" class="hint">Нажмите «Новая сессия», чтобы получить первое служебное сообщение (params).</p>
+
+        <div class="block" id="send-block-start">
+          <button id="send-start">1) Новая сессия (params)</button>
+        </div>
+
+        <div class="block hidden" id="send-block-copy-params">
+          <label for="send-outgoing-params">2) Отправьте это сообщение в MAX (params)</label>
+          <textarea id="send-outgoing-params" readonly></textarea>
+          <button id="send-copy-params">Копировать params</button>
+        </div>
+
+        <div class="block hidden" id="send-block-ack">
+          <label for="send-ack-input">3) Вставьте ответ ack_params из MAX</label>
+          <textarea id="send-ack-input" placeholder="Вставьте JSON ack_params"></textarea>
+          <button id="send-apply-ack">Подтвердить ack_params и создать pub</button>
+        </div>
+
+        <div class="block hidden" id="send-block-copy-pub">
+          <label for="send-outgoing-pub">4) Отправьте это сообщение в MAX (pub)</label>
+          <textarea id="send-outgoing-pub" readonly></textarea>
+          <button id="send-copy-pub">Копировать pub</button>
+        </div>
+
+        <div class="block hidden" id="send-block-peer-pub">
+          <label for="send-peer-pub-input">5) Вставьте pub собеседника из MAX</label>
+          <textarea id="send-peer-pub-input" placeholder="Вставьте JSON pub"></textarea>
+        </div>
+
+        <div class="block hidden" id="send-block-plaintext">
+          <label for="send-plaintext">6) Введите текст сообщения</label>
+          <textarea id="send-plaintext" placeholder="Текст для шифрования"></textarea>
+          <button id="send-encrypt">Зашифровать и собрать финальный пакет</button>
+        </div>
+
+        <div class="block hidden" id="send-block-final">
+          <label for="send-outgoing-final">7) Отправьте это сообщение в MAX (final packet)</label>
+          <textarea id="send-outgoing-final" readonly></textarea>
+          <button id="send-copy-final">Копировать final packet</button>
+        </div>
+
+        <div class="actions">
+          <button id="send-reset" class="danger">Сбросить сессию Отправителя</button>
+        </div>
+      </section>
+
+      <section class="panel hidden" data-panel="read">
+        <h2>Роль: Получатель</h2>
+        <p id="read-step" class="step">Состояние: idle</p>
+        <p id="read-hint" class="hint">Вставьте params от Отправителя, затем следуйте шагам.</p>
+
+        <div class="block" id="read-block-params">
+          <label for="read-params-input">1) Вставьте params из MAX</label>
+          <textarea id="read-params-input" placeholder="Вставьте JSON params"></textarea>
+          <button id="read-apply-params">Подтвердить params и создать ack_params</button>
+        </div>
+
+        <div class="block hidden" id="read-block-copy-ack">
+          <label for="read-outgoing-ack">2) Отправьте это сообщение в MAX (ack_params)</label>
+          <textarea id="read-outgoing-ack" readonly></textarea>
+          <button id="read-copy-ack">Копировать ack_params</button>
+        </div>
+
+        <div class="block hidden" id="read-block-pub-input">
+          <label for="read-peer-pub-input">3) Вставьте pub Отправителя из MAX</label>
+          <textarea id="read-peer-pub-input" placeholder="Вставьте JSON pub"></textarea>
+          <button id="read-apply-pub">Подтвердить pub и создать свой pub</button>
+        </div>
+
+        <div class="block hidden" id="read-block-copy-pub">
+          <label for="read-outgoing-pub">4) Отправьте это сообщение в MAX (pub)</label>
+          <textarea id="read-outgoing-pub" readonly></textarea>
+          <button id="read-copy-pub">Копировать pub</button>
+        </div>
+
+        <div class="block hidden" id="read-block-ciphertext">
+          <label for="read-ciphertext-input">5) Вставьте финальный пакет (base64 JSON) из MAX</label>
+          <textarea id="read-ciphertext-input" placeholder="Вставьте final packet"></textarea>
+          <button id="read-decrypt">Расшифровать</button>
+        </div>
+
+        <div class="block hidden" id="read-block-plaintext">
+          <label for="read-plaintext">6) Расшифрованный текст</label>
+          <textarea id="read-plaintext" readonly></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="read-reset" class="danger">Сбросить сессию Получателя</button>
+        </div>
+      </section>
+
+      <footer>
+        <p id="global-status" class="status muted">Готово.</p>
+      </footer>
+    </main>
+
+    <script type="module" src="./popup.js"></script>
+  </body>
+</html>
