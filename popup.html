@@ -10,7 +10,12 @@
     <main class="app">
       <header class="header">
         <h1>MAX E2E</h1>
-        <p class="muted">Одноразовая DH‑сессия для каждого сообщения</p>
+        <p class="muted">Пошаговый мастер одноразовой DH‑сессии</p>
+        <div class="top-actions">
+          <button id="open-standalone" title="Открыть интерфейс в отдельной вкладке, чтобы не терять состояние при закрытии popup">
+            Открыть в отдельной вкладке
+          </button>
+        </div>
       </header>
 
       <nav class="tabs" role="tablist" aria-label="Режим">
@@ -21,42 +26,95 @@
       <section class="panel" data-panel="send">
         <h2>Роль: Отправитель</h2>
         <p id="send-step" class="step">Состояние: idle</p>
+        <p id="send-hint" class="hint">Нажмите «Новая сессия», чтобы получить первое служебное сообщение (params).</p>
 
-        <label for="send-plaintext">Текст сообщения</label>
-        <textarea id="send-plaintext" placeholder="Введите текст для шифрования (понадобится на шаге encrypt_and_send)"></textarea>
-
-        <label for="send-incoming">Входящее служебное сообщение из MAX</label>
-        <textarea id="send-incoming" placeholder="Вставьте ack_params или pub"></textarea>
-
-        <div class="actions">
-          <button id="send-start">Новая сессия (params)</button>
-          <button id="send-next">Следующий шаг</button>
-          <button id="send-copy">Копировать исходящее</button>
-          <button id="send-reset" class="danger">Сбросить сессию</button>
+        <div class="block" id="send-block-start">
+          <button id="send-start">1) Новая сессия (params)</button>
         </div>
 
-        <label for="send-outgoing">Исходящее сообщение в MAX</label>
-        <textarea id="send-outgoing" readonly placeholder="Здесь появится JSON/base64 для отправки"></textarea>
+        <div class="block hidden" id="send-block-copy-params">
+          <label for="send-outgoing-params">2) Отправьте это сообщение в MAX (params)</label>
+          <textarea id="send-outgoing-params" readonly></textarea>
+          <button id="send-copy-params">Копировать params</button>
+        </div>
+
+        <div class="block hidden" id="send-block-ack">
+          <label for="send-ack-input">3) Вставьте ответ ack_params из MAX</label>
+          <textarea id="send-ack-input" placeholder="Вставьте JSON ack_params"></textarea>
+          <button id="send-apply-ack">Подтвердить ack_params и создать pub</button>
+        </div>
+
+        <div class="block hidden" id="send-block-copy-pub">
+          <label for="send-outgoing-pub">4) Отправьте это сообщение в MAX (pub)</label>
+          <textarea id="send-outgoing-pub" readonly></textarea>
+          <button id="send-copy-pub">Копировать pub</button>
+        </div>
+
+        <div class="block hidden" id="send-block-peer-pub">
+          <label for="send-peer-pub-input">5) Вставьте pub собеседника из MAX</label>
+          <textarea id="send-peer-pub-input" placeholder="Вставьте JSON pub"></textarea>
+        </div>
+
+        <div class="block hidden" id="send-block-plaintext">
+          <label for="send-plaintext">6) Введите текст сообщения</label>
+          <textarea id="send-plaintext" placeholder="Текст для шифрования"></textarea>
+          <button id="send-encrypt">Зашифровать и собрать финальный пакет</button>
+        </div>
+
+        <div class="block hidden" id="send-block-final">
+          <label for="send-outgoing-final">7) Отправьте это сообщение в MAX (final packet)</label>
+          <textarea id="send-outgoing-final" readonly></textarea>
+          <button id="send-copy-final">Копировать final packet</button>
+        </div>
+
+        <div class="actions">
+          <button id="send-reset" class="danger">Сбросить сессию Отправителя</button>
+        </div>
       </section>
 
       <section class="panel hidden" data-panel="read">
         <h2>Роль: Получатель</h2>
         <p id="read-step" class="step">Состояние: idle</p>
+        <p id="read-hint" class="hint">Вставьте params от Отправителя, затем следуйте шагам.</p>
 
-        <label for="read-incoming">Входящее служебное сообщение / ciphertext из MAX</label>
-        <textarea id="read-incoming" placeholder="Вставьте params, pub или final packet"></textarea>
-
-        <div class="actions">
-          <button id="read-next">Следующий шаг</button>
-          <button id="read-copy">Копировать исходящее</button>
-          <button id="read-reset" class="danger">Сбросить сессию</button>
+        <div class="block" id="read-block-params">
+          <label for="read-params-input">1) Вставьте params из MAX</label>
+          <textarea id="read-params-input" placeholder="Вставьте JSON params"></textarea>
+          <button id="read-apply-params">Подтвердить params и создать ack_params</button>
         </div>
 
-        <label for="read-outgoing">Исходящее сообщение в MAX</label>
-        <textarea id="read-outgoing" readonly placeholder="Здесь появится ACK/PUB для отправки"></textarea>
+        <div class="block hidden" id="read-block-copy-ack">
+          <label for="read-outgoing-ack">2) Отправьте это сообщение в MAX (ack_params)</label>
+          <textarea id="read-outgoing-ack" readonly></textarea>
+          <button id="read-copy-ack">Копировать ack_params</button>
+        </div>
 
-        <label for="read-plaintext">Расшифрованный текст</label>
-        <textarea id="read-plaintext" readonly placeholder="Появится после шага decrypt"></textarea>
+        <div class="block hidden" id="read-block-pub-input">
+          <label for="read-peer-pub-input">3) Вставьте pub Отправителя из MAX</label>
+          <textarea id="read-peer-pub-input" placeholder="Вставьте JSON pub"></textarea>
+          <button id="read-apply-pub">Подтвердить pub и создать свой pub</button>
+        </div>
+
+        <div class="block hidden" id="read-block-copy-pub">
+          <label for="read-outgoing-pub">4) Отправьте это сообщение в MAX (pub)</label>
+          <textarea id="read-outgoing-pub" readonly></textarea>
+          <button id="read-copy-pub">Копировать pub</button>
+        </div>
+
+        <div class="block hidden" id="read-block-ciphertext">
+          <label for="read-ciphertext-input">5) Вставьте финальный пакет (base64 JSON) из MAX</label>
+          <textarea id="read-ciphertext-input" placeholder="Вставьте final packet"></textarea>
+          <button id="read-decrypt">Расшифровать</button>
+        </div>
+
+        <div class="block hidden" id="read-block-plaintext">
+          <label for="read-plaintext">6) Расшифрованный текст</label>
+          <textarea id="read-plaintext" readonly></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="read-reset" class="danger">Сбросить сессию Получателя</button>
+        </div>
       </section>
 
       <footer>

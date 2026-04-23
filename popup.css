@@ -17,20 +17,12 @@ body {
   font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
 
-.app {
-  width: 420px;
-  padding: 12px;
-}
+.app { width: 460px; padding: 12px; }
 
-.header h1 {
-  margin: 0;
-  font-size: 20px;
-}
+.header h1 { margin: 0; font-size: 20px; }
+.muted { color: var(--muted); margin: 2px 0 8px; }
 
-.muted {
-  color: var(--muted);
-  margin: 2px 0 8px;
-}
+.top-actions { margin: 6px 0 8px; }
 
 .tabs {
   display: grid;
@@ -60,42 +52,43 @@ body {
   padding: 10px;
 }
 
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
-h2 {
-  margin: 0 0 8px;
-  font-size: 16px;
-}
+h2 { margin: 0 0 8px; font-size: 16px; }
+.step { margin: 0 0 4px; color: var(--accent); }
+.hint { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
 
-.step {
-  margin: 0 0 8px;
-  color: var(--accent);
+.block {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background: #131822;
 }
 
 label {
   display: block;
-  margin: 8px 0 4px;
+  margin: 4px 0 4px;
   color: var(--muted);
 }
 
 textarea {
   width: 100%;
-  min-height: 82px;
+  min-height: 72px;
   resize: vertical;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #0d1016;
   color: var(--text);
   padding: 8px;
+  margin-bottom: 6px;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 8px 0;
+  margin-top: 8px;
 }
 
 button {
@@ -107,9 +100,7 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  border-color: var(--accent);
-}
+button:hover { border-color: var(--accent); }
 
 button.danger {
   border-color: #743535;
@@ -117,7 +108,4 @@ button.danger {
   background: #391f1f;
 }
 
-.status {
-  margin-top: 10px;
-  font-size: 12px;
-}
+.status { margin-top: 10px; font-size: 12px; }
