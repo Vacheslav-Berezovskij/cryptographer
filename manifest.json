@@ -8,6 +8,9 @@
     "default_popup": "popup.html"
   },
   "background": {
+    "scripts": [
+      "background.js"
+    ],
     "service_worker": "background.js",
     "type": "module"
   },
@@ -42,5 +45,17 @@
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none';"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "max-dh-e2e-helper@example.local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ],
+        "optional": []
+      }
+    }
   }
 }
