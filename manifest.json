@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "MAX DH E2E Helper",
+  "version": "1.0.0",
+  "description": "Одноразовое E2E-шифрование для MAX через copy/paste протокол (DH + HKDF + AES-GCM)",
+  "action": {
+    "default_title": "MAX DH E2E",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "storage",
+    "clipboardWrite"
+  ],
+  "host_permissions": [
+    "https://max.ru/*",
+    "https://*.max.ru/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://max.ru/*",
+        "https://*.max.ru/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [],
+      "matches": [
+        "https://max.ru/*",
+        "https://*.max.ru/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none';"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "max-dh-e2e-helper@example.local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ],
+        "optional": []
+      }
+    }
+  }
+}
